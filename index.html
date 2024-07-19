@@ -50,13 +50,12 @@
     </header>
     <div class="content">
         <div class="race-info">
-            <h2>Current Race: Italian Grand Prix</h2>
-            <p>Date: September 3, 2024</p>
-            <p>Location: Monza, Italy</p>
-            <h3>Race Status: Live</h3>
-            <p>Laps Completed: 32/53</p>
+            <h2 id="race-name">Current Race: Italian Grand Prix</h2>
+            <p id="race-date">Date: September 3, 2024</p>
+            <p id="race-location">Location: Monza, Italy</p>
+            <h3 id="race-status">Race Status: Live</h3>
             <h3>Current Standings:</h3>
-            <ul>
+            <ul id="race-standings">
                 <li>1. Charles Leclerc (Ferrari)</li>
                 <li>2. Max Verstappen (Red Bull Racing)</li>
                 <li>3. Carlos Sainz (Ferrari)</li>
@@ -67,5 +66,30 @@
     <footer>
         <p>&copy; 2024 F1 Live Updates. All rights reserved.</p>
     </footer>
+    <script>
+        async function fetchRaceData() {
+            console.log('Fetching race data...');
+            try {
+                const response = await fetch('https://ergast.com/api/f1/current/last/results.json');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                console.log('Data fetched successfully:', data);
+                const race = data.MRData.RaceTable.Races[0];
+                document.getElementById('race-name').textContent = `Current Race: ${race.raceName}`;
+                document.getElementById('race-date').textContent = `Date: ${race.date}`;
+                document.getElementById('race-location').textContent = `Location: ${race.Circuit.circuitName}, ${race.Circuit.Location.locality}, ${race.Circuit.Location.country}`;
+                document.getElementById('race-status').textContent = 'Race Status: Live';
+
+                const standings = race.Results.map(result => `<li>${result.position}. ${result.Driver.givenName} ${result.Driver.familyName} (${result.Constructor.name})</li>`).join('');
+                document.getElementById('race-standings').innerHTML = standings;
+            } catch (error) {
+                console.error('Error fetching race data:', error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchRaceData);
+    </script>
 </body>
 </html>
